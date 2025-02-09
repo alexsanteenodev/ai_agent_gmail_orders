@@ -19,7 +19,7 @@ install: venv
 	$(PIP) install -r requirements.txt
 
 run:
-	python main.py
+	python mailer.py
 
 # Clean up virtual environment and cache
 clean:
