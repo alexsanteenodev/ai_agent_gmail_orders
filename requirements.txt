@@ -1,0 +1,12 @@
+langgraph
+langchain_anthropic
+tavily-python
+langchain_community
+langchain_openai
+langchain-core
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+reportlab
+python-dotenv
+email-validator
