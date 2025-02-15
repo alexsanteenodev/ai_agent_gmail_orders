@@ -18,8 +18,8 @@ activate:
 install: venv
 	$(PIP) install -r requirements.txt
 
-run:
-	python mailer.py
+start-mailer:
+	PYTHONPATH=. python src/mailer.py
 
 # Clean up virtual environment and cache
 clean:
