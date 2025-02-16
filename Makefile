@@ -20,6 +20,8 @@ install: venv
 
 start-mailer:
 	PYTHONPATH=. python src/mailer.py
+start-api:
+	PYTHONPATH=. uvicorn src.api.fake_pricing_api:app --reload
 
 # Clean up virtual environment and cache
 clean:

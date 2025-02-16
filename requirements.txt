@@ -12,3 +12,6 @@ python-dotenv
 email-validator
 pylint
 black
+fastapi
+uvicorn
+pydantic
