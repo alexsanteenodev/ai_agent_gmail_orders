@@ -7,7 +7,7 @@ from email.mime.application import MIMEApplication
 from datetime import datetime
 from typing import Dict, List, Optional
 from dotenv import load_dotenv
-from src.services.mailer.generate_invoice import generate_invoice
+from services.mailer.generate_invoice import generate_invoice
 
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -51,7 +51,7 @@ def get_gmail_service() -> Resource:
         # Start OAuth flow
         flow = InstalledAppFlow.from_client_secrets_file(creds_path, SCOPES)
         creds = flow.run_local_server(port=0)
-        
+       
         # Save token for next time
         with open(token_path, 'w') as token:
             token.write(creds.to_json())
