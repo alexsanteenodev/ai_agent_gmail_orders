@@ -7,7 +7,7 @@ from email.mime.application import MIMEApplication
 from datetime import datetime
 from typing import Dict, List, Optional
 from dotenv import load_dotenv
-from services.mailer.generate_invoice import generate_invoice
+from services.mailer.generate_invoice import generate_invoice, OrderDetails, OrderItem
 
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -127,15 +127,29 @@ def send_email(to: str, subject: str, body: str, attach_invoice: Optional[bool] 
     msg = MIMEText(body)
     message.attach(msg)
     
+    print(f"[{datetime.now()}] Attaching invoice: {attach_invoice}")
+    print(f"[{datetime.now()}] Order details: {order_details}")
     if attach_invoice and order_details:
         # Generate invoice PDF
-        invoice_path = generate_invoice(order_details)
-        with open(invoice_path, 'rb') as f:
-            invoice = MIMEApplication(f.read(), _subtype='pdf')
-            invoice.add_header('Content-Disposition', 'attachment', filename='invoice.pdf')
-            message.attach(invoice)
-            print(f"[{datetime.now()}] Invoice attached to email")
-        os.remove(invoice_path)  # Clean up
+        print(f"[{datetime.now()}] Generating invoice")
+        try:
+            # Convert items to OrderItem instances
+            items = [OrderItem(**item) for item in order_details.get('items', [])]
+            # Create OrderDetails instance
+            order_model = OrderDetails(
+                customer_name=order_details.get('customer_name'),
+                items=items
+            )
+            invoice_path = generate_invoice(order_model)
+            print(f"[{datetime.now()}] Invoice path: {invoice_path}")
+            with open(invoice_path, 'rb') as f:
+                invoice = MIMEApplication(f.read(), _subtype='pdf')
+                invoice.add_header('Content-Disposition', 'attachment', filename='invoice.pdf')
+                message.attach(invoice)
+                print(f"[{datetime.now()}] Invoice attached to email")
+            os.remove(invoice_path)  # Clean up
+        except Exception as e:
+            print(f"[{datetime.now()}] Error generating invoice: {str(e)}")
     
     raw = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
     service.users().messages().send(userId='me', body={'raw': raw}).execute()
@@ -144,7 +158,7 @@ def send_email(to: str, subject: str, body: str, attach_invoice: Optional[bool] 
 
 
 # Initialize the agent
-tools = [read_emails, send_email, generate_invoice]
+tools = [read_emails, send_email]
 model = ChatAnthropic(
     model="claude-3-5-sonnet-latest",
     temperature=0,
@@ -156,6 +170,18 @@ model = ChatAnthropic(
         3. Generating and sending invoices when orders are confirmed
         4. Responding professionally to customer questions
         
+        When processing orders and generating invoices, you MUST format the order_details in this exact structure:
+        {
+            "customer_name": "Customer's Full Name",
+            "items": [
+                {
+                    "description": "Product Name/Description",
+                    "quantity": 1,
+                    "price": 1299.99
+                }
+            ]
+        }
+
         Always maintain a professional tone and ensure all order details are correct before processing."""
     }
 )
