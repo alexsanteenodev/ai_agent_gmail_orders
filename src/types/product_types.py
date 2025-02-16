@@ -15,7 +15,7 @@ class AppleProduct(str, Enum):
     APPLE_WATCH_SERIES_9 = "apple_watch_series_9"
 
 # Fixed prices for Apple products
-APPLE_PRODUCT_PRICES: Dict[AppleProduct, float] = {
+APPLE_PRODUCT_PRICES: Dict[str, float] = {
     AppleProduct.IPHONE_15: 799.00,
     AppleProduct.IPHONE_15_PRO: 999.00,
     AppleProduct.IPHONE_15_PRO_MAX: 1199.00,
