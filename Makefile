@@ -32,6 +32,9 @@ clean:
 # Rebuild everything from scratch
 rebuild: clean install
 
+lint:
+	pylint src
+
 
 
 .DEFAULT_GOAL := install 

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from typing import List
 import uvicorn
 from pydantic import BaseModel
-from types.product_types import AppleProduct, APPLE_PRODUCT_PRICES
+from models.product_types import AppleProduct, APPLE_PRODUCT_PRICES
 
 app = FastAPI(title="Apple Products Pricing API")
 
