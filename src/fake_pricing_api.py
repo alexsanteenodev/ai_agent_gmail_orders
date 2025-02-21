@@ -11,12 +11,6 @@ class PriceResponse(BaseModel):
     price: float
     currency: str = "USD"
 
-class BulkPriceRequest(BaseModel):
-    product_ids: List[AppleProduct]
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the Apple Products Pricing API"}
 
 @app.get("/price/{product_id}", response_model=PriceResponse)
 async def get_price(product_id: AppleProduct):
@@ -24,23 +18,5 @@ async def get_price(product_id: AppleProduct):
         product_id=product_id,
         price=APPLE_PRODUCT_PRICES[product_id]
     )
-
-@app.post("/bulk-prices")
-async def get_bulk_prices(request: BulkPriceRequest):
-    return [
-        PriceResponse(
-            product_id=product_id,
-            price=APPLE_PRODUCT_PRICES[product_id]
-        )
-        for product_id in request.product_ids
-    ]
-
-@app.get("/products")
-async def list_products():
-    return [
-        {"product_id": product.value, "price": APPLE_PRODUCT_PRICES[product]}
-        for product in AppleProduct
-    ]
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3001)

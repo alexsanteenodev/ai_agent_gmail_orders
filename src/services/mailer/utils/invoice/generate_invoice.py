@@ -5,8 +5,6 @@ from pydantic import BaseModel
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
-# from langchain_core.tools import tool
-
 class OrderItem(BaseModel):
     description: str
     quantity: int
