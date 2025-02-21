@@ -21,7 +21,7 @@ def send_email(to: str, subject: str, body: str, attach_invoice: Optional[bool] 
     message['to'] = to
     message['subject'] = subject
     
-    msg = MIMEText(body
+    msg = MIMEText(body, 'plain')
     message.attach(msg)
     
     print(f"[{datetime.now()}] Attaching invoice: {attach_invoice}")
