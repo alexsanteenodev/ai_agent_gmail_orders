@@ -7,6 +7,7 @@ from langgraph.prebuilt import create_react_agent
 from langgraph.checkpoint.memory import MemorySaver
 from services.mailer.tools.read_mail import read_emails
 from services.mailer.tools.send_mail import send_email
+
 load_dotenv()
 
 # Initialize the agent
@@ -56,7 +57,7 @@ def process_emails():
         print(f"[{datetime.now()}] Error processing emails: {e}")
         return None
 
-def run_email_processor(check_interval: int = 10):  # 10 seconds
+def run_email_processor(check_interval: int = 5):
     """Run the email processor as a continuous job."""
     print(f"[{datetime.now()}] Starting email processor job...")
     print("Checking for new emails every", check_interval, "seconds")

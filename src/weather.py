@@ -1,5 +1,6 @@
 from typing import Literal
-
+import os
+import requests
 from langchain_anthropic import ChatAnthropic
 from langchain_core.tools import tool
 from langgraph.checkpoint.memory import MemorySaver
@@ -11,11 +12,70 @@ load_dotenv()
 # Define the tools for the agent to use
 @tool
 def search(query: str):
-    """Call to surf the web."""
-    # This is a placeholder, but don't tell the LLM that...
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        return "It's 60 degrees and foggy."
-    return "It's 90 degrees and sunny."
+    """Get current weather for a location using OpenMeteo API."""
+    # Extract city name from query
+    query = query.lower()
+    if "weather" in query:
+        query = query.replace("weather", "").strip()
+    if "in" in query:
+        query = query.split("in")[-1].strip()
+    
+    try:
+        # First get coordinates for the city using Nominatim (OpenStreetMap) geocoding
+        geocoding_url = f"https://geocoding-api.open-meteo.com/v1/search?name={query}&count=1&language=en&format=json"
+        location_response = requests.get(geocoding_url)
+        location_data = location_response.json()
+        
+        if not location_data.get('results'):
+            return f"Could not find location: {query}"
+            
+        location = location_data['results'][0]
+        lat = location['latitude']
+        lon = location['longitude']
+        city_name = location['name']
+        
+        # Get weather data using coordinates
+        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit"
+        weather_response = requests.get(weather_url)
+        weather_data = weather_response.json()
+        
+        temp = weather_data['current']['temperature_2m']
+        weather_code = weather_data['current']['weather_code']
+        
+        # Convert weather code to description
+        weather_descriptions = {
+            0: "clear sky",
+            1: "mainly clear",
+            2: "partly cloudy",
+            3: "overcast",
+            45: "foggy",
+            48: "depositing rime fog",
+            51: "light drizzle",
+            53: "moderate drizzle",
+            55: "dense drizzle",
+            61: "slight rain",
+            63: "moderate rain",
+            65: "heavy rain",
+            71: "slight snow fall",
+            73: "moderate snow fall",
+            75: "heavy snow fall",
+            77: "snow grains",
+            80: "slight rain showers",
+            81: "moderate rain showers",
+            82: "violent rain showers",
+            85: "slight snow showers",
+            86: "heavy snow showers",
+            95: "thunderstorm",
+            96: "thunderstorm with slight hail",
+            99: "thunderstorm with heavy hail",
+        }
+        
+        description = weather_descriptions.get(weather_code, "unknown conditions")
+        
+        return f"In {city_name}, it's {temp}°F with {description}."
+        
+    except Exception as e:
+        return f"Error fetching weather data: {str(e)}"
 
 
 tools = [search]
@@ -77,7 +137,7 @@ app = workflow.compile(checkpointer=checkpointer)
 
 # Use the agent
 final_state = app.invoke(
-    {"messages": [{"role": "user", "content": "what is the weather in sf"}]},
+    {"messages": [{"role": "user", "content": "what is the weather in Miami"}]},
     config={"configurable": {"thread_id": 42}}
 )
 print(final_state["messages"][-1].content)

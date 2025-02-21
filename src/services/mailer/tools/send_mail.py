@@ -7,8 +7,8 @@ from langchain_core.tools import tool
 from datetime import datetime
 from typing import Dict, Optional
 from dotenv import load_dotenv
-from src.services.mailer.utils.invoice.generate_invoice import generate_invoice, OrderDetails, OrderItem
-from src.services.mailer.utils.get_gmail_service import get_gmail_service
+from services.mailer.utils.invoice.generate_invoice import generate_invoice, OrderDetails, OrderItem
+from services.mailer.utils.get_gmail_service import get_gmail_service
 load_dotenv()
 
 
