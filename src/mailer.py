@@ -7,11 +7,12 @@ from langgraph.prebuilt import create_react_agent
 from langgraph.checkpoint.memory import MemorySaver
 from services.mailer.tools.read_mail import read_emails
 from services.mailer.tools.send_mail import send_email
+from services.mailer.tools.get_product_price import get_product_price, get_api_info
 
 load_dotenv()
 
 # Initialize the agent
-tools = [read_emails, send_email]
+tools = [read_emails, get_product_price, get_api_info, send_email]
 model = ChatAnthropic(
     model="claude-3-5-sonnet-latest",
     temperature=0,
